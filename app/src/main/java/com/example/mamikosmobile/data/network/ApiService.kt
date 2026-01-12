@@ -1,107 +1,83 @@
 package com.example.mamikosmobile.data.network
 
 import com.example.mamikosmobile.data.model.*
-import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.*
 
 interface ApiService {
 
     // ==========================================
-    // AUTH & PROFILE (AuthController)
+    // AUTH & PROFILE
     // ==========================================
     @POST("api/auth/register")
-    fun register(@Body request: RegisterRequest): Call<LoginResponse>
+    suspend fun register(@Body request: RegisterRequest): Response<LoginResponse>
 
     @POST("api/auth/login")
-    fun login(@Body request: LoginRequest): Call<LoginResponse>
+    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
     @GET("api/auth/me")
-    fun getMyProfile(@Header("Authorization") token: String): Call<ProfileResponseDto>
+    suspend fun getMyProfile(): Response<ProfileResponseDto>
 
     @PUT("api/auth/me")
-    fun updateMyProfile(
-        @Header("Authorization") token: String,
-        @Body request: UpdateProfileRequest
-    ): Call<ProfileResponseDto>
-
+    suspend fun updateMyProfile(@Body request: UpdateProfileRequest): Response<ProfileResponseDto>
 
     // ==========================================
-    // KOSAN (KosanController)
+    // KOSAN
     // ==========================================
     @GET("api/kosan")
-    fun getAllKosan(): Call<List<KosanResponse>>
+    suspend fun getAllKosan(): Response<List<KosanResponse>>
 
     @GET("api/kosan/{id}")
-    fun getKosanById(@Path("id") id: Long): Call<KosanResponse>
+    suspend fun getKosanById(@Path("id") id: Long): Response<KosanResponse>
 
     @POST("api/kosan")
-    fun createKosan(
-        @Header("Authorization") token: String,
-        @Body request: KosanRequest
-    ): Call<KosanResponse>
+    suspend fun createKosan(@Body request: KosanRequest): Response<KosanResponse>
 
     @PUT("api/kosan/{id}")
-    fun updateKosan(
-        @Header("Authorization") token: String,
+    suspend fun updateKosan(
         @Path("id") id: Long,
         @Body request: KosanRequest
-    ): Call<KosanResponse>
+    ): Response<KosanResponse>
 
     @DELETE("api/kosan/{id}")
-    fun deleteKosan(
-        @Header("Authorization") token: String,
-        @Path("id") id: Long
-    ): Call<Void>
+    suspend fun deleteKosan(@Path("id") id: Long): Response<Void>
 
     @GET("api/kosan/my-listings")
-    fun getMyListings(@Header("Authorization") token: String): Call<List<KosanResponse>>
-
+    suspend fun getMyListings(): Response<List<KosanResponse>>
 
     // ==========================================
-    // ORDERS (OrderController)
+    // ORDERS
     // ==========================================
     @POST("api/orders")
-    fun createOrder(
-        @Header("Authorization") token: String,
-        @Body request: OrderRequest
-    ): Call<OrderResponse>
+    suspend fun createOrder(@Body request: OrderRequest): Response<OrderResponse>
 
     @GET("api/orders/my-bookings")
-    fun getMyBookings(@Header("Authorization") token: String): Call<List<OrderResponse>>
+    suspend fun getMyBookings(): Response<List<OrderResponse>>
 
     @GET("api/orders/my-rentals")
-    fun getMyRentals(@Header("Authorization") token: String): Call<List<OrderResponse>>
+    suspend fun getMyRentals(): Response<List<OrderResponse>>
 
     @PUT("api/orders/{id}/status")
-    fun updateOrderStatus(
-        @Header("Authorization") token: String,
+    suspend fun updateOrderStatus(
         @Path("id") id: Long,
-        @Body statusUpdate: StatusUpdate // Mengirim { "status": "..." }
-    ): Call<OrderResponse>
+        @Body statusUpdate: StatusUpdate
+    ): Response<OrderResponse>
 
     @GET("api/orders/{id}")
-    fun getOrderById(
-        @Header("Authorization") token: String,
-        @Path("id") id: Long
-    ): Call<OrderResponse>
-
+    suspend fun getOrderById(@Path("id") id: Long): Response<OrderResponse>
 
     // ==========================================
-    // ULASAN (UlasanController)
+    // ULASAN
     // ==========================================
     @GET("api/kosan/{kosanId}/ulasan")
-    fun getUlasanByKosan(@Path("kosanId") kosanId: Long): Call<List<UlasanResponse>>
+    suspend fun getUlasanByKosan(@Path("kosanId") kosanId: Long): Response<List<UlasanResponse>>
 
     @POST("api/kosan/{kosanId}/ulasan")
-    fun createUlasan(
-        @Header("Authorization") token: String,
+    suspend fun createUlasan(
         @Path("kosanId") kosanId: Long,
         @Body request: UlasanRequest
-    ): Call<UlasanResponse>
+    ): Response<UlasanResponse>
 
     @DELETE("api/ulasan/{ulasanId}")
-    fun deleteUlasan(
-        @Header("Authorization") token: String,
-        @Path("ulasanId") ulasanId: Long
-    ): Call<Void>
+    suspend fun deleteUlasan(@Path("ulasanId") ulasanId: Long): Response<Void>
 }

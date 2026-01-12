@@ -3,6 +3,9 @@ package com.example.mamikosmobile.ui.home
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -11,16 +14,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.mamikosmobile.data.model.KosanResponse
+import com.example.mamikosmobile.data.session.SessionManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: KosanViewModel,
     onLogout: () -> Unit,
-    onKosanClick: (KosanResponse) -> Unit // TAMBAHKAN PARAMETER INI
+    onKosanClick: (KosanResponse) -> Unit
 ) {
     val context = LocalContext.current
+    val sessionManager = SessionManager(context)
 
+    // Load data saat pertama kali dibuka
     LaunchedEffect(Unit) {
         viewModel.fetchAllKosan(context)
     }
@@ -28,38 +34,96 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Daftar Kos STIS") },
+                title = {
+                    Column {
+                        Text("Mamikos STIS")
+                        Text(
+                            text = "Selamat datang, ${sessionManager.getUsername() ?: "User"}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                },
                 actions = {
+                    // Refresh Button
+                    IconButton(onClick = { viewModel.refreshKosan(context) }) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                    }
+
+                    // Logout Button
                     IconButton(onClick = onLogout) {
-                        Text("Logout")
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
                     }
                 }
             )
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
-            if (viewModel.isLoading.value) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
-            ) {
-                items(viewModel.kosList.value) { kosan ->
-                    // Di sini kita panggil KosanItem dan teruskan datanya ke onKosanClick
-                    KosanItem(
-                        kosan = kosan,
-                        onClick = { onKosanClick(kosan) }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            when {
+                viewModel.isLoading.value -> {
+                    // Loading State
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
-            }
 
-            viewModel.errorMessage.value?.let {
-                Text(
-                    text = it,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                viewModel.errorMessage.value != null -> {
+                    // Error State
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = viewModel.errorMessage.value!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = { viewModel.refreshKosan(context) }) {
+                            Text("Coba Lagi")
+                        }
+                    }
+                }
+
+                viewModel.kosList.value.isEmpty() -> {
+                    // Empty State
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Belum ada kosan tersedia",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = { viewModel.refreshKosan(context) }) {
+                            Text("Refresh")
+                        }
+                    }
+                }
+
+                else -> {
+                    // Success State - Show List
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(viewModel.kosList.value) { kosan ->
+                            KosanItem(
+                                kosan = kosan,
+                                onClick = { onKosanClick(kosan) }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
