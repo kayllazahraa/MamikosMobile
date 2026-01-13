@@ -8,10 +8,12 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.mamikosmobile.data.model.KosanResponse
 import com.example.mamikosmobile.data.session.SessionManager
 import com.example.mamikosmobile.ui.order.OrderViewModel
@@ -59,6 +61,16 @@ fun DetailKosanScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
+            if (!kosan.gambarUrl.isNullOrEmpty()) {
+                AsyncImage(
+                    model = kosan.gambarUrl,
+                    contentDescription = "Gambar Kos",
+                    modifier = Modifier.fillMaxWidth().height(250.dp),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             // Nama Kosan
             Text(
                 text = kosan.nama,

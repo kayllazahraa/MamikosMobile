@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -16,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import com.example.mamikosmobile.data.model.KosanResponse
 import com.example.mamikosmobile.data.session.SessionManager
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Person
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,10 +27,12 @@ fun HomeScreen(
     onLogout: () -> Unit,
     onKosanClick: (KosanResponse) -> Unit,
     onMyBookingsClick: () -> Unit,
-    onMyKosanClick: () -> Unit
+    onMyKosanClick: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
+    val role = sessionManager.getRole()
 
     // Load data saat pertama kali dibuka
     LaunchedEffect(Unit) {
@@ -47,16 +52,26 @@ fun HomeScreen(
                     }
                 },
                 actions = {
-                    // Refresh Button
-                    IconButton(onClick = { viewModel.refreshKosan(context) }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                    // 1. Tombol Kelola Kos (Hanya muncul jika Role PEMILIK)
+                    if (role == "ROLE_PEMILIK") {
+                        IconButton(onClick = onMyKosanClick) {
+                            Icon(Icons.Default.Home, contentDescription = "Kelola Kos")
+                        }
                     }
 
-                    IconButton(onClick = { onMyBookingsClick() }) {
-                        Icon(Icons.Default.List, contentDescription = "Pesanan Saya")
+                    // 2. Tombol Pesanan Saya (SEKARANG DIBATASI: Hanya muncul jika Role PENCARI)
+                    if (role == "ROLE_PENCARI") {
+                        IconButton(onClick = onMyBookingsClick) {
+                            Icon(Icons.Default.List, contentDescription = "Pesanan Saya")
+                        }
                     }
 
-                    // Logout Button
+                    // 3. Tombol Profil (Tersedia untuk semua role)
+                    IconButton(onClick = onProfileClick) {
+                        Icon(Icons.Default.Person, contentDescription = "Profil")
+                    }
+
+                    // 4. Tombol Logout
                     IconButton(onClick = onLogout) {
                         Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
                     }

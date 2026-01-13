@@ -3,6 +3,7 @@ package com.example.mamikosmobile.ui.owner
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -38,6 +39,7 @@ fun AddEditKosanScreen(
     var harga by remember { mutableStateOf(kosan?.hargaPerBulan?.toString() ?: "") }
     var deskripsi by remember { mutableStateOf(kosan?.deskripsi ?: "") }
     var tersedia by remember { mutableStateOf(kosan?.tersedia ?: true) }
+    var gambarUrl by remember { mutableStateOf(kosan?.gambarUrl ?: "") }
 
     Scaffold(
         topBar = {
@@ -59,6 +61,12 @@ fun AddEditKosanScreen(
             OutlinedTextField(alamat, { alamat = it }, label = { Text("Alamat") })
             OutlinedTextField(harga, { harga = it }, label = { Text("Harga / bulan") })
             OutlinedTextField(deskripsi, { deskripsi = it }, label = { Text("Deskripsi") })
+            OutlinedTextField(
+                value = gambarUrl,
+                onValueChange = { gambarUrl = it },
+                label = { Text("URL Gambar Kos") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(tersedia, { tersedia = it })
@@ -67,7 +75,7 @@ fun AddEditKosanScreen(
 
             Button(onClick = {
                 val request = KosanRequest(
-                    nama, alamat, harga.toInt(), deskripsi, tersedia
+                    nama, alamat, harga.toInt(), deskripsi, tersedia, gambarUrl
                 )
 
                 if (kosan == null) {

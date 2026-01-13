@@ -3,6 +3,8 @@ package com.example.mamikosmobile.data.network
 import com.example.mamikosmobile.data.model.*
 import retrofit2.Response
 import retrofit2.http.*
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 interface ApiService {
 
