@@ -15,13 +15,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.mamikosmobile.data.model.KosanResponse
 import com.example.mamikosmobile.data.session.SessionManager
+import androidx.compose.material.icons.filled.List
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: KosanViewModel,
     onLogout: () -> Unit,
-    onKosanClick: (KosanResponse) -> Unit
+    onKosanClick: (KosanResponse) -> Unit,
+    onMyBookingsClick: () -> Unit,
+    onMyKosanClick: () -> Unit
 ) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
@@ -47,6 +50,10 @@ fun HomeScreen(
                     // Refresh Button
                     IconButton(onClick = { viewModel.refreshKosan(context) }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                    }
+
+                    IconButton(onClick = { onMyBookingsClick() }) {
+                        Icon(Icons.Default.List, contentDescription = "Pesanan Saya")
                     }
 
                     // Logout Button

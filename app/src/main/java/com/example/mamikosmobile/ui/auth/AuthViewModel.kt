@@ -6,19 +6,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mamikosmobile.data.model.LoginRequest
-import com.example.mamikosmobile.data.model.LoginResponse
 import com.example.mamikosmobile.data.model.RegisterRequest
 import com.example.mamikosmobile.data.network.RetrofitClient
 import com.example.mamikosmobile.data.session.SessionManager
 import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
+
     var isLoading = mutableStateOf(false)
     var errorMessage = mutableStateOf<String?>(null)
     var successMessage = mutableStateOf<String?>(null)
 
-    fun login(context: Context, username: String, password: String, onSuccess: () -> Unit) {
-        // Validasi input
+    // ===============================
+    // LOGIN
+    // ===============================
+    fun login(
+        context: Context,
+        username: String,
+        password: String,
+        onSuccess: () -> Unit
+    ) {
         if (username.isBlank() || password.isBlank()) {
             errorMessage.value = "Username dan password tidak boleh kosong"
             return
@@ -30,26 +37,33 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val apiService = RetrofitClient.getClient(context)
-                val request = LoginRequest(username, password)
-                val response = apiService.login(request)
+                val response = apiService.login(LoginRequest(username, password))
 
                 if (response.isSuccessful && response.body() != null) {
                     val loginResponse = response.body()!!
 
-                    // Simpan ke session
+                    // 🔥 NORMALISASI ROLE (INI KUNCI)
+                    val normalizedRole = when (loginResponse.role.uppercase()) {
+                        "PEMILIK", "OWNER", "ROLE_PEMILIK" -> "ROLE_PEMILIK"
+                        else -> "ROLE_PENCARI"
+                    }
+
+                    Log.d(
+                        "LOGIN_RESPONSE",
+                        "username=${loginResponse.username}, rawRole=${loginResponse.role}, normalizedRole=$normalizedRole"
+                    )
+
                     val sessionManager = SessionManager(context)
                     sessionManager.saveAuthToken(
                         token = loginResponse.token,
                         username = loginResponse.username,
-                        role = loginResponse.role
+                        role = normalizedRole
                     )
 
-                    Log.d("AUTH", "Login berhasil: ${loginResponse.username}")
                     successMessage.value = "Login berhasil!"
                     onSuccess()
                 } else {
-                    val errorBody = response.errorBody()?.string()
-                    Log.e("AUTH", "Login gagal: $errorBody")
+                    Log.e("AUTH", "Login gagal: ${response.errorBody()?.string()}")
                     errorMessage.value = "Login gagal: Username atau password salah"
                 }
             } catch (e: Exception) {
@@ -61,6 +75,9 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    // ===============================
+    // REGISTER
+    // ===============================
     fun register(
         context: Context,
         namaLengkap: String,
@@ -70,9 +87,12 @@ class AuthViewModel : ViewModel() {
         role: String,
         onSuccess: () -> Unit
     ) {
-        // Validasi input
-        if (namaLengkap.isBlank() || username.isBlank() || password.isBlank() ||
-            nomorTelefon.isBlank()) {
+        if (
+            namaLengkap.isBlank() ||
+            username.isBlank() ||
+            password.isBlank() ||
+            nomorTelefon.isBlank()
+        ) {
             errorMessage.value = "Semua field harus diisi"
             return
         }
@@ -88,32 +108,41 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val apiService = RetrofitClient.getClient(context)
-                val request = RegisterRequest(
-                    namaLengkap = namaLengkap,
-                    username = username,
-                    password = password,
-                    nomorTelefon = nomorTelefon,
-                    role = role
+                val response = apiService.register(
+                    RegisterRequest(
+                        namaLengkap = namaLengkap,
+                        username = username,
+                        password = password,
+                        nomorTelefon = nomorTelefon,
+                        role = role
+                    )
                 )
-                val response = apiService.register(request)
 
                 if (response.isSuccessful && response.body() != null) {
                     val loginResponse = response.body()!!
 
-                    // Simpan ke session
+                    // 🔥 NORMALISASI ROLE JUGA SAAT REGISTER
+                    val normalizedRole = when (loginResponse.role.uppercase()) {
+                        "PEMILIK", "OWNER", "ROLE_PEMILIK" -> "ROLE_PEMILIK"
+                        else -> "ROLE_PENCARI"
+                    }
+
+                    Log.d(
+                        "REGISTER_RESPONSE",
+                        "username=${loginResponse.username}, rawRole=${loginResponse.role}, normalizedRole=$normalizedRole"
+                    )
+
                     val sessionManager = SessionManager(context)
                     sessionManager.saveAuthToken(
                         token = loginResponse.token,
                         username = loginResponse.username,
-                        role = loginResponse.role
+                        role = normalizedRole
                     )
 
-                    Log.d("AUTH", "Registrasi berhasil: ${loginResponse.username}")
                     successMessage.value = "Registrasi berhasil!"
                     onSuccess()
                 } else {
-                    val errorBody = response.errorBody()?.string()
-                    Log.e("AUTH", "Registrasi gagal: $errorBody")
+                    Log.e("AUTH", "Registrasi gagal: ${response.errorBody()?.string()}")
                     errorMessage.value = "Registrasi gagal: Username mungkin sudah digunakan"
                 }
             } catch (e: Exception) {
