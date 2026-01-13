@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.example.mamikosmobile.data.model.KosanResponse
 import com.example.mamikosmobile.data.session.SessionManager
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 
 
@@ -28,7 +29,8 @@ fun HomeScreen(
     onKosanClick: (KosanResponse) -> Unit,
     onMyBookingsClick: () -> Unit,
     onMyKosanClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onOwnerOrdersClick: () -> Unit
 ) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
@@ -52,26 +54,34 @@ fun HomeScreen(
                     }
                 },
                 actions = {
-                    // 1. Tombol Kelola Kos (Hanya muncul jika Role PEMILIK)
+                    // 1. Tombol Khusus PEMILIK
                     if (role == "ROLE_PEMILIK") {
+                        // TAMBAHKAN TOMBOL INI: Untuk melihat pesanan masuk (Approve/Reject)
+                        IconButton(onClick = onOwnerOrdersClick) {
+                            // Anda bisa menggunakan ikon Notifications atau ListAlt
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Pesanan Masuk"
+                            )
+                        }
+
                         IconButton(onClick = onMyKosanClick) {
                             Icon(Icons.Default.Home, contentDescription = "Kelola Kos")
                         }
                     }
 
-                    // 2. Tombol Pesanan Saya (SEKARANG DIBATASI: Hanya muncul jika Role PENCARI)
+                    // 2. Tombol Khusus PENCARI
                     if (role == "ROLE_PENCARI") {
                         IconButton(onClick = onMyBookingsClick) {
                             Icon(Icons.Default.List, contentDescription = "Pesanan Saya")
                         }
                     }
 
-                    // 3. Tombol Profil (Tersedia untuk semua role)
+                    // 3. Tombol Profil & Logout (Semua role)
                     IconButton(onClick = onProfileClick) {
                         Icon(Icons.Default.Person, contentDescription = "Profil")
                     }
 
-                    // 4. Tombol Logout
                     IconButton(onClick = onLogout) {
                         Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
                     }

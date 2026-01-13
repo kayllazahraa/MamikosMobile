@@ -19,6 +19,7 @@ import com.example.mamikosmobile.ui.order.OrderViewModel
 import com.example.mamikosmobile.ui.owner.AddEditKosanScreen
 import com.example.mamikosmobile.ui.owner.MyKosanScreen
 import com.example.mamikosmobile.ui.owner.OwnerKosanViewModel
+import com.example.mamikosmobile.ui.owner.OwnerOrdersScreen // Pastikan ini diimport
 import com.example.mamikosmobile.ui.profile.ProfileScreen
 import com.example.mamikosmobile.ui.profile.ProfileViewModel
 import com.example.mamikosmobile.ui.theme.MamikosMobileTheme
@@ -124,7 +125,8 @@ fun MamikosApp() {
                         onKosanClick = { kosan -> selectedKosan = kosan },
                         onMyBookingsClick = { currentScreen = "my_bookings" },
                         onMyKosanClick = { ownerScreen = "my_kosan" },
-                        onProfileClick = { currentScreen = "profile" } // Menambahkan navigasi profil
+                        onProfileClick = { currentScreen = "profile" },
+                        onOwnerOrdersClick = { currentScreen = "owner_orders" }
                     )
                 }
             }
@@ -138,7 +140,17 @@ fun MamikosApp() {
             ProfileScreen(
                 profileViewModel = profileViewModel,
                 onBack = {
-                    currentScreen = "home" // Kembali ke state home
+                    currentScreen = "home"
+                }
+            )
+        }
+
+        // RUTE BARU UNTUK PESANAN MASUK (PEMILIK)
+        "owner_orders" -> {
+            OwnerOrdersScreen(
+                orderViewModel = orderViewModel,
+                onBack = {
+                    currentScreen = "home"
                 }
             )
         }
