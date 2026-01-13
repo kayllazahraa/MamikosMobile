@@ -17,9 +17,6 @@ class AuthViewModel : ViewModel() {
     var errorMessage = mutableStateOf<String?>(null)
     var successMessage = mutableStateOf<String?>(null)
 
-    // ===============================
-    // LOGIN
-    // ===============================
     fun login(
         context: Context,
         username: String,
