@@ -17,6 +17,7 @@ class OrderViewModel : ViewModel() {
     var isLoading = mutableStateOf(false)
     var successMessage = mutableStateOf<String?>(null)
     var errorMessage = mutableStateOf<String?>(null)
+    var incomingRentals = mutableStateOf<List<OrderResponse>>(emptyList())
 
     fun createOrder(context: Context, kosanId: Long, onSuccess: () -> Unit = {}) {
         isLoading.value = true
@@ -101,6 +102,56 @@ class OrderViewModel : ViewModel() {
             }
         }
     }
+
+    fun loadOwnerRentals(context: Context) {
+        isLoading.value = true
+        errorMessage.value = null
+
+        viewModelScope.launch {
+            try {
+                val apiService = RetrofitClient.getClient(context)
+                val response = apiService.getMyRentals() // Memanggil endpoint rentals
+
+                if (response.isSuccessful && response.body() != null) {
+                    incomingRentals.value = response.body()!!
+                } else {
+                    errorMessage.value = "Gagal memuat pesanan masuk"
+                }
+            } catch (e: Exception) {
+                errorMessage.value = "Koneksi gagal"
+            } finally {
+                isLoading.value = false
+            }
+        }
+    }
+
+    fun updateRentalStatus(context: Context, orderId: Long, newStatus: String) {
+        isLoading.value = true
+        errorMessage.value = null
+
+        viewModelScope.launch {
+            try {
+                val apiService = RetrofitClient.getClient(context)
+                // newStatus bisa berisi "APPROVED" atau "REJECTED"
+                val response = apiService.updateOrderStatus(
+                    orderId,
+                    StatusUpdate(status = newStatus)
+                )
+
+                if (response.isSuccessful) {
+                    successMessage.value = "Status pesanan berhasil diperbarui menjadi $newStatus"
+                    loadOwnerRentals(context) // Refresh daftar setelah update
+                } else {
+                    errorMessage.value = "Gagal memperbarui status"
+                }
+            } catch (e: Exception) {
+                errorMessage.value = "Terjadi kesalahan"
+            } finally {
+                isLoading.value = false
+            }
+        }
+    }
+
 
 
     fun clearMessages() {
