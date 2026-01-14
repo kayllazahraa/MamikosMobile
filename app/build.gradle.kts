@@ -101,6 +101,8 @@ dependencies {
         implementation("com.github.bumptech.glide:glide:4.16.0")
         implementation(libs.androidx.material3)
          implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.foundation.layout)
 
     // Testing
     testImplementation(libs.junit)

@@ -13,20 +13,43 @@ fun MyKosanItem(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    Card {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(kosan.nama, style = MaterialTheme.typography.titleMedium)
-            Text("Rp ${kosan.hargaPerBulan} / bulan")
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = kosan.nama,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Text(
+                text = "Rp ${kosan.hargaPerBulan} / bulan",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row {
-                Button(onClick = onEdit) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = onEdit,
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text("Edit")
                 }
-                Spacer(modifier = Modifier.width(8.dp))
+
                 Button(
                     onClick = onDelete,
+                    modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     )
@@ -37,3 +60,4 @@ fun MyKosanItem(
         }
     }
 }
+

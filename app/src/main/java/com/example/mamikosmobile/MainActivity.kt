@@ -69,7 +69,7 @@ fun MamikosApp() {
         "register" -> {
             RegisterScreen(
                 viewModel = authViewModel,
-                onRegisterSuccess = { currentScreen = "home" },
+                onRegisterSuccess = { currentScreen = "login" },
                 onBackToLogin = { currentScreen = "login" }
             )
         }

@@ -51,56 +51,64 @@ fun MyKosanScreen(
             )
         }
     ) { paddingValues ->
-        when {
-            ownerViewModel.isLoading.value -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
 
-            ownerViewModel.myKosanList.value.isEmpty() -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Anda belum memiliki kos")
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            when {
+                ownerViewModel.isLoading.value -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
-            }
 
-            else -> {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(ownerViewModel.myKosanList.value) { kos ->
-                        MyKosanItem(
-                            kosan = kos,
-                            onEdit = { onEdit(kos.id) },
-                            onDelete = {
-                                ownerViewModel.deleteKosan(context, kos.id)
-                            }
+                ownerViewModel.myKosanList.value.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Anda belum memiliki kos",
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
-            }
-        }
 
-        ownerViewModel.errorMessage.value?.let { error ->
-            Snackbar(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(error)
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(ownerViewModel.myKosanList.value) { kos ->
+                            MyKosanItem(
+                                kosan = kos,
+                                onEdit = { onEdit(kos.id) },
+                                onDelete = {
+                                    ownerViewModel.deleteKosan(context, kos.id)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            ownerViewModel.errorMessage.value?.let { error ->
+                Snackbar(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp)
+                ) {
+                    Text(error)
+                }
             }
         }
     }
+
 }

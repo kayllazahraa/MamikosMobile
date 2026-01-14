@@ -18,19 +18,21 @@ import com.example.mamikosmobile.data.session.SessionManager
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import com.example.mamikosmobile.ui.order.OrderViewModel
+import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: KosanViewModel,
-    onLogout: () -> Unit,
     onKosanClick: (KosanResponse) -> Unit,
     onMyBookingsClick: () -> Unit,
     onMyKosanClick: () -> Unit,
     onProfileClick: () -> Unit,
-    onOwnerOrdersClick: () -> Unit // Tambahkan parameter ini agar baris merah hilang
+    onOwnerOrdersClick: () -> Unit,
+    onLogout: () -> Unit
 ) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
@@ -38,6 +40,29 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         viewModel.fetchAllKosan(context)
+    }
+
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("Konfirmasi Logout") },
+            text = { Text("Apakah Anda yakin ingin keluar dari aplikasi?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showLogoutDialog = false
+                        onLogout() // Panggil fungsi logout asli
+                    }
+                ) { Text("Yakin") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Batal")
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -53,11 +78,8 @@ fun HomeScreen(
                     }
                 },
                 actions = {
-                    // 1. Tombol Khusus PEMILIK
                     if (role == "ROLE_PEMILIK") {
-                        // TAMBAHKAN TOMBOL INI: Untuk melihat pesanan masuk (Approve/Reject)
                         IconButton(onClick = onOwnerOrdersClick) {
-                            // Anda bisa menggunakan ikon Notifications atau ListAlt
                             Icon(
                                 imageVector = Icons.Default.Notifications,
                                 contentDescription = "Pesanan Masuk"
@@ -69,19 +91,17 @@ fun HomeScreen(
                         }
                     }
 
-                    // 2. Tombol Khusus PENCARI
                     if (role == "ROLE_PENCARI") {
                         IconButton(onClick = onMyBookingsClick) {
                             Icon(Icons.Default.List, contentDescription = "Pesanan Saya")
                         }
                     }
 
-                    // 3. Tombol Profil & Logout (Semua role)
                     IconButton(onClick = onProfileClick) {
                         Icon(Icons.Default.Person, contentDescription = "Profil")
                     }
 
-                    IconButton(onClick = onLogout) {
+                    IconButton(onClick = { showLogoutDialog = true }) {
                         Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
                     }
                 }
@@ -95,14 +115,12 @@ fun HomeScreen(
         ) {
             when {
                 viewModel.isLoading.value -> {
-                    // Loading State
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
 
                 viewModel.errorMessage.value != null -> {
-                    // Error State
                     Column(
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -122,7 +140,6 @@ fun HomeScreen(
                 }
 
                 viewModel.kosList.value.isEmpty() -> {
-                    // Empty State
                     Column(
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -141,19 +158,10 @@ fun HomeScreen(
                 }
 
                 else -> {
-                    // Success State - Show List
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(viewModel.kosList.value) { kosan ->
-                            KosanItem(
-                                kosan = kosan,
-                                onClick = { onKosanClick(kosan) }
-                            )
-                        }
-                    }
+                    KosanScrollableList(
+                        kosanList = viewModel.kosList.value,
+                        onKosanClick = onKosanClick
+                    )
                 }
             }
         }

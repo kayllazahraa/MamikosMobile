@@ -35,9 +35,13 @@ fun DetailKosanScreen(
     var ratingInput by remember { mutableIntStateOf(5) }
     var komentarInput by remember { mutableStateOf("") }
 
-    val canReview = orderViewModel.myOrders.value.any {
-        it.kosan.id == kosan.id && it.status == "APPROVED"
-    }
+    // State lokal untuk transisi setelah klik pesan sebelum data di-refresh
+    var isWaitingApproval by remember { mutableStateOf(false) }
+
+    // Mencari apakah sudah ada pesanan untuk kosan ini di daftar pesanan pengguna
+    val existingOrder = orderViewModel.myOrders.value.find { it.kosan.id == kosan.id }
+
+    val canReview = existingOrder?.status == "APPROVED"
 
     LaunchedEffect(Unit) {
         orderViewModel.clearMessages()
@@ -173,7 +177,6 @@ fun DetailKosanScreen(
                     fontWeight = FontWeight.Bold
                 )
 
-                // Tombol Tambah Ulasan hanya jika memenuhi syarat
                 if (canReview) {
                     TextButton(onClick = { showReviewDialog = true }) {
                         Text("Tambah Ulasan")
@@ -217,22 +220,44 @@ fun DetailKosanScreen(
                         )
                     }
                 } else {
+                    // Logika penentuan teks dan status tombol berdasarkan data pesanan yang ada
+                    val hasExistingRequest = existingOrder != null || isWaitingApproval
+                    val buttonText = when {
+                        existingOrder?.status == "APPROVED" -> "Pesanan disetujui"
+                        existingOrder?.status == "PENDING" || isWaitingApproval -> "Menunggu persetujuan pemilik"
+                        kosan.tersedia -> "Pesan Sekarang"
+                        else -> "Kosan Tidak Tersedia"
+                    }
+
                     Button(
                         onClick = {
                             orderViewModel.createOrder(
                                 context = context,
                                 kosanId = kosan.id,
-                                onSuccess = { }
+                                onSuccess = {
+                                    isWaitingApproval = true
+                                    showSuccessDialog = true
+                                }
                             )
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
-                        enabled = kosan.tersedia
+                        enabled = kosan.tersedia && !hasExistingRequest,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (hasExistingRequest)
+                                MaterialTheme.colorScheme.surfaceVariant
+                            else
+                                MaterialTheme.colorScheme.primary
+                        )
                     ) {
                         Text(
-                            text = if (kosan.tersedia) "Pesan Sekarang" else "Kosan Tidak Tersedia",
-                            fontSize = 16.sp
+                            text = buttonText,
+                            fontSize = 16.sp,
+                            color = if (hasExistingRequest)
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            else
+                                MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }

@@ -124,13 +124,6 @@ class AuthViewModel : ViewModel() {
                         "username=${loginResponse.username}, rawRole=${loginResponse.role}, normalizedRole=$normalizedRole"
                     )
 
-                    val sessionManager = SessionManager(context)
-                    sessionManager.saveAuthToken(
-                        token = loginResponse.token,
-                        username = loginResponse.username,
-                        role = normalizedRole
-                    )
-
                     successMessage.value = "Registrasi berhasil!"
                     onSuccess()
                 } else {
