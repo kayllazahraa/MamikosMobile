@@ -35,10 +35,8 @@ fun DetailKosanScreen(
     var ratingInput by remember { mutableIntStateOf(5) }
     var komentarInput by remember { mutableStateOf("") }
 
-    // State lokal untuk transisi setelah klik pesan sebelum data di-refresh
     var isWaitingApproval by remember { mutableStateOf(false) }
 
-    // Mencari apakah sudah ada pesanan untuk kosan ini di daftar pesanan pengguna
     val existingOrder = orderViewModel.myOrders.value.find { it.kosan.id == kosan.id }
 
     val canReview = existingOrder?.status == "APPROVED"
@@ -220,7 +218,6 @@ fun DetailKosanScreen(
                         )
                     }
                 } else {
-                    // Logika penentuan teks dan status tombol berdasarkan data pesanan yang ada
                     val hasExistingRequest = existingOrder != null || isWaitingApproval
                     val buttonText = when {
                         existingOrder?.status == "APPROVED" -> "Pesanan disetujui"
