@@ -21,7 +21,6 @@ fun LoginScreen(
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // Clear messages saat screen dibuka
     LaunchedEffect(Unit) {
         viewModel.clearMessages()
     }
@@ -33,7 +32,6 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Logo/Title
         Text(
             text = "Mamikos STIS",
             style = MaterialTheme.typography.headlineLarge,
@@ -50,7 +48,6 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Username Field
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
@@ -62,7 +59,6 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Password Field
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
@@ -75,7 +71,6 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Login Button
         Button(
             onClick = {
                 viewModel.login(
@@ -101,13 +96,10 @@ fun LoginScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Register Navigation
         TextButton(onClick = onNavigateToRegister) {
             Text("Belum punya akun? Daftar di sini")
         }
 
-        // Error Message
         viewModel.errorMessage.value?.let { error ->
             Spacer(modifier = Modifier.height(16.dp))
             Card(
@@ -124,7 +116,6 @@ fun LoginScreen(
             }
         }
 
-        // Success Message
         viewModel.successMessage.value?.let { success ->
             Spacer(modifier = Modifier.height(16.dp))
             Card(

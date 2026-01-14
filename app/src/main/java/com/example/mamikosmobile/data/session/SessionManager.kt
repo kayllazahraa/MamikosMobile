@@ -15,7 +15,6 @@ class SessionManager(context: Context) {
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
     }
 
-    // Simpan data login
     fun saveAuthToken(token: String, username: String, role: String) {
         prefs.edit().apply {
             putString(KEY_TOKEN, token)
@@ -26,27 +25,22 @@ class SessionManager(context: Context) {
         }
     }
 
-    // Ambil token
     fun fetchAuthToken(): String? {
         return prefs.getString(KEY_TOKEN, null)
     }
 
-    // Ambil username
     fun getUsername(): String? {
         return prefs.getString(KEY_USERNAME, null)
     }
 
-    // Ambil role
     fun getRole(): String? {
         return prefs.getString(KEY_ROLE, null)
     }
 
-    // Cek apakah sudah login
     fun isLoggedIn(): Boolean {
         return prefs.getBoolean(KEY_IS_LOGGED_IN, false)
     }
 
-    // Logout - hapus semua data
     fun clearSession() {
         prefs.edit().clear().apply()
     }

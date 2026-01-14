@@ -1,7 +1,6 @@
 package com.example.mamikosmobile.data.model
 
 data class LoginRequest(val username: String, val password: String)
-
 data class LoginResponse(val username: String, val role: String, val token: String)
 
 data class RegisterRequest(

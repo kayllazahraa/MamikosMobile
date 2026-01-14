@@ -5,8 +5,7 @@ data class KosanRequest(
     val alamat: String,
     val hargaPerBulan: Int,
     val deskripsi: String?,
-    val tersedia: Boolean,
-    val gambarUrl: String?
+    val tersedia: Boolean
 )
 
 data class KosanResponse(
@@ -16,6 +15,5 @@ data class KosanResponse(
     val hargaPerBulan: Int,
     val deskripsi: String?,
     val tersedia: Boolean,
-    val pemilik: UserDto,
-    val gambarUrl: String?
+    val pemilik: UserDto
 )

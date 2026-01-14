@@ -7,13 +7,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.example.mamikosmobile.data.model.KosanResponse
 import com.example.mamikosmobile.data.session.SessionManager
 import com.example.mamikosmobile.ui.order.OrderViewModel
@@ -23,22 +22,28 @@ import com.example.mamikosmobile.ui.order.OrderViewModel
 fun DetailKosanScreen(
     kosan: KosanResponse,
     orderViewModel: OrderViewModel,
+    ulasanViewModel: UlasanViewModel,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
     val userRole = sessionManager.getRole()
+    val currentUsername = sessionManager.getUsername()
     var showSuccessDialog by remember { mutableStateOf(false) }
 
-    // Clear messages when screen opens
-    LaunchedEffect(Unit) {
-        orderViewModel.clearMessages()
+    var showReviewDialog by remember { mutableStateOf(false) }
+    var ratingInput by remember { mutableIntStateOf(5) }
+    var komentarInput by remember { mutableStateOf("") }
+
+    val canReview = orderViewModel.myOrders.value.any {
+        it.kosan.id == kosan.id && it.status == "APPROVED"
     }
 
-    // Show success dialog
-    LaunchedEffect(orderViewModel.successMessage.value) {
-        if (orderViewModel.successMessage.value != null) {
-            showSuccessDialog = true
+    LaunchedEffect(Unit) {
+        orderViewModel.clearMessages()
+        ulasanViewModel.fetchUlasan(context, kosan.id)
+        if (userRole == "ROLE_PENCARI") {
+            orderViewModel.loadMyBookings(context)
         }
     }
 
@@ -61,17 +66,6 @@ fun DetailKosanScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            if (!kosan.gambarUrl.isNullOrEmpty()) {
-                AsyncImage(
-                    model = kosan.gambarUrl,
-                    contentDescription = "Gambar Kos",
-                    modifier = Modifier.fillMaxWidth().height(250.dp),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            // Nama Kosan
             Text(
                 text = kosan.nama,
                 fontSize = 24.sp,
@@ -80,7 +74,6 @@ fun DetailKosanScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Alamat
             Text(
                 text = kosan.alamat,
                 fontSize = 16.sp,
@@ -89,7 +82,6 @@ fun DetailKosanScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Harga Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -112,7 +104,6 @@ fun DetailKosanScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Status Ketersediaan
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -141,7 +132,6 @@ fun DetailKosanScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Pemilik Info
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
@@ -156,7 +146,6 @@ fun DetailKosanScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Deskripsi
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
@@ -172,10 +161,47 @@ fun DetailKosanScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Ulasan Pengguna",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                // Tombol Tambah Ulasan hanya jika memenuhi syarat
+                if (canReview) {
+                    TextButton(onClick = { showReviewDialog = true }) {
+                        Text("Tambah Ulasan")
+                    }
+                }
+            }
+
+            if (ulasanViewModel.isLoading.value) {
+                CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+            } else if (ulasanViewModel.ulasanList.value.isEmpty()) {
+                Text(
+                    text = "Belum ada ulasan.",
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                ulasanViewModel.ulasanList.value.forEach { ulasan ->
+                    UlasanItem(
+                        ulasan = ulasan,
+                        currentUsername = currentUsername,
+                        onDelete = { ulasanViewModel.deleteUlasan(context, ulasan.id, kosan.id) }
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Order Button (hanya untuk ROLE_PENCARI)
             if (userRole == "ROLE_PENCARI") {
                 if (orderViewModel.isLoading.value) {
                     Button(
@@ -211,7 +237,6 @@ fun DetailKosanScreen(
                     }
                 }
             } else {
-                // Info untuk non-pencari
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
@@ -226,7 +251,6 @@ fun DetailKosanScreen(
                 }
             }
 
-            // Error Message
             orderViewModel.errorMessage.value?.let { error ->
                 Spacer(modifier = Modifier.height(16.dp))
                 Card(
@@ -245,7 +269,6 @@ fun DetailKosanScreen(
         }
     }
 
-    // Success Dialog
     if (showSuccessDialog) {
         AlertDialog(
             onDismissRequest = { },
@@ -255,10 +278,37 @@ fun DetailKosanScreen(
                 TextButton(onClick = {
                     showSuccessDialog = false
                     orderViewModel.clearMessages()
-                    onBack()
                 }) {
                     Text("OK")
                 }
+            }
+        )
+    }
+
+    if (showReviewDialog) {
+        AlertDialog(
+            onDismissRequest = { showReviewDialog = false },
+            title = { Text("Beri Ulasan") },
+            text = {
+                Column {
+                    Text("Rating (1-5)")
+                    Slider(value = ratingInput.toFloat(), onValueChange = { ratingInput = it.toInt() }, valueRange = 1f..5f, steps = 3)
+                    OutlinedTextField(value = komentarInput, onValueChange = { komentarInput = it }, label = { Text("Komentar") }, modifier = Modifier.fillMaxWidth())
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        ulasanViewModel.createUlasan(context, kosan.id, ratingInput, komentarInput) {
+                            showReviewDialog = false
+                            komentarInput = ""
+                        }
+                    },
+                    enabled = komentarInput.isNotBlank()
+                ) { Text("Kirim") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showReviewDialog = false }) { Text("Batal") }
             }
         )
     }

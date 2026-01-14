@@ -1,8 +1,7 @@
 package com.example.mamikosmobile.model
 
-class Order  // Constructor kosong
+class Order
 {
-    // Getter dan Setter
     var id: Long? = null
     var kosId: Long? = null
     var kosName: String? = null
@@ -11,8 +10,8 @@ class Order  // Constructor kosong
     var userPhone: String? = null
     var checkInDate: String? = null
     var checkOutDate: String? = null
-    var duration: Int = 0 // dalam bulan
+    var duration: Int = 0
     var totalPrice: Double = 0.0
-    var status: String? = null // PENDING, APPROVED, REJECTED
+    var status: String? = null
     var createdAt: String? = null
 }

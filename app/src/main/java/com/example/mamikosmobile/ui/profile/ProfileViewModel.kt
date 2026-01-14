@@ -15,7 +15,6 @@ class ProfileViewModel : ViewModel() {
     var isLoading = mutableStateOf(false)
     var errorMessage = mutableStateOf<String?>(null)
     var successMessage = mutableStateOf<String?>(null)
-
     var profile = mutableStateOf<ProfileResponseDto?>(null)
 
     fun loadProfile(context: Context) {

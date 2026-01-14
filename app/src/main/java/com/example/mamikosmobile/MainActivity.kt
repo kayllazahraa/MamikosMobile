@@ -14,15 +14,16 @@ import com.example.mamikosmobile.ui.auth.RegisterScreen
 import com.example.mamikosmobile.ui.home.DetailKosanScreen
 import com.example.mamikosmobile.ui.home.HomeScreen
 import com.example.mamikosmobile.ui.home.KosanViewModel
+import com.example.mamikosmobile.ui.home.UlasanViewModel
 import com.example.mamikosmobile.ui.order.MyBookingsScreen
 import com.example.mamikosmobile.ui.order.OrderViewModel
 import com.example.mamikosmobile.ui.owner.AddEditKosanScreen
 import com.example.mamikosmobile.ui.owner.MyKosanScreen
 import com.example.mamikosmobile.ui.owner.OwnerKosanViewModel
-import com.example.mamikosmobile.ui.owner.OwnerOrdersScreen // Pastikan ini diimport
 import com.example.mamikosmobile.ui.profile.ProfileScreen
 import com.example.mamikosmobile.ui.profile.ProfileViewModel
 import com.example.mamikosmobile.ui.theme.MamikosMobileTheme
+import com.example.mamikosmobile.ui.order.OwnerOrdersScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,6 +47,7 @@ fun MamikosApp() {
     val orderViewModel = remember { OrderViewModel() }
     val ownerViewModel = remember { OwnerKosanViewModel() }
     val profileViewModel = remember { ProfileViewModel() }
+    val ulasanViewModel = remember { UlasanViewModel() }
 
     var currentScreen by remember {
         mutableStateOf(if (sessionManager.isLoggedIn()) "home" else "login")
@@ -76,7 +78,6 @@ fun MamikosApp() {
             val role = sessionManager.getRole()
 
             when {
-                // JIKA ROLE PEMILIK: Tampilkan MyKosanScreen atau AddEditKosanScreen
                 role == "ROLE_PEMILIK" && ownerScreen != "home" -> {
                     if (ownerScreen == "my_kosan") {
                         MyKosanScreen(
@@ -103,11 +104,11 @@ fun MamikosApp() {
                     }
                 }
 
-                // JIKA PENCARI ATAU PEMILIK SEDANG DI HALAMAN JELAJAH
                 selectedKosan != null -> {
                     DetailKosanScreen(
                         kosan = selectedKosan!!,
                         orderViewModel = orderViewModel,
+                        ulasanViewModel = ulasanViewModel,
                         onBack = {
                             selectedKosan = null
                             kosanViewModel.refreshKosan(context)
@@ -133,7 +134,10 @@ fun MamikosApp() {
         }
 
         "my_bookings" -> {
-            MyBookingsScreen(onBack = { currentScreen = "home" })
+            MyBookingsScreen(
+                orderViewModel = orderViewModel,
+                onBack = { currentScreen = "home" }
+            )
         }
 
         "profile" -> {
@@ -145,7 +149,6 @@ fun MamikosApp() {
             )
         }
 
-        // RUTE BARU UNTUK PESANAN MASUK (PEMILIK)
         "owner_orders" -> {
             OwnerOrdersScreen(
                 orderViewModel = orderViewModel,

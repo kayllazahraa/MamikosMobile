@@ -14,17 +14,12 @@ object RetrofitClient {
 
     fun getClient(context: Context): ApiService {
         val sessionManager = SessionManager(context)
-
-        // Logging Interceptor untuk debugging
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
-        // Auth Interceptor untuk menyisipkan Token JWT
         val authInterceptor = okhttp3.Interceptor { chain ->
             val requestBuilder = chain.request().newBuilder()
-
-            // Ambil token dari session
             sessionManager.fetchAuthToken()?.let { token ->
                 requestBuilder.addHeader("Authorization", "Bearer $token")
             }
@@ -33,7 +28,6 @@ object RetrofitClient {
             chain.proceed(request)
         }
 
-        // OkHttp Client dengan timeout dan interceptor
         val client = OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .addInterceptor(authInterceptor)

@@ -14,12 +14,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun ProfileScreen(
     profileViewModel: ProfileViewModel = viewModel(),
-    onBack: () -> Unit // Parameter untuk fungsi kembali
+    onBack: () -> Unit
 ) {
     val context = LocalContext.current
     val profile = profileViewModel.profile.value
 
-    // Muat data profil saat pertama kali dibuka
     LaunchedEffect(Unit) {
         profileViewModel.loadProfile(context)
     }
@@ -29,7 +28,7 @@ fun ProfileScreen(
             TopAppBar(
                 title = { Text("Profil Akun") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) { // Memanggil fungsi onBack saat diklik
+                    IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Kembali ke Home"
@@ -54,7 +53,6 @@ fun ProfileScreen(
                 }
             } else {
                 profile?.let {
-                    // State lokal untuk form edit
                     var namaLengkap by remember { mutableStateOf(it.namaLengkap) }
                     var username by remember { mutableStateOf(it.username) }
                     var nomor by remember { mutableStateOf(it.nomorTelefon ?: "") }
@@ -112,7 +110,6 @@ fun ProfileScreen(
                     }
                 }
 
-                // Pesan Error/Sukses
                 profileViewModel.errorMessage.value?.let {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(it, color = MaterialTheme.colorScheme.error)

@@ -1,4 +1,4 @@
-package com.example.mamikosmobile.ui.owner
+package com.example.mamikosmobile.ui.order
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.mamikosmobile.ui.order.OrderViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,7 +54,6 @@ fun OwnerOrdersScreen(
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(text = "Kos: ${order.kosan.nama}", fontWeight = FontWeight.Bold)
-                                // PERBAIKAN: Menggunakan 'user' sesuai OrderResponse
                                 Text(text = "Penyewa: ${order.user.namaLengkap}")
                                 Text(text = "Status: ${order.status}")
 

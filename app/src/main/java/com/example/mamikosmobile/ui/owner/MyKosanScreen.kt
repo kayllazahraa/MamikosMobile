@@ -24,7 +24,6 @@ fun MyKosanScreen(
 ) {
     val context = LocalContext.current
 
-    // Load kos milik pemilik saat screen dibuka
     LaunchedEffect(Unit) {
         ownerViewModel.loadMyKosan(context)
     }
@@ -52,8 +51,6 @@ fun MyKosanScreen(
             )
         }
     ) { paddingValues ->
-
-        // ===== CONTENT =====
         when {
             ownerViewModel.isLoading.value -> {
                 Box(
@@ -98,7 +95,6 @@ fun MyKosanScreen(
             }
         }
 
-        // ===== ERROR MESSAGE =====
         ownerViewModel.errorMessage.value?.let { error ->
             Snackbar(
                 modifier = Modifier.padding(16.dp)

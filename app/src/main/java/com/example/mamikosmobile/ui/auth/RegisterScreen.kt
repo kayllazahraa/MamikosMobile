@@ -54,7 +54,6 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Nama Lengkap
         OutlinedTextField(
             value = namaLengkap,
             onValueChange = { namaLengkap = it },
@@ -65,7 +64,6 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Username
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
@@ -76,7 +74,6 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Password
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
@@ -89,7 +86,6 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Nomor Telepon
         OutlinedTextField(
             value = nomorTelefon,
             onValueChange = { nomorTelefon = it },
@@ -101,7 +97,6 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Role Selection
         Text(
             text = "Daftar sebagai:",
             style = MaterialTheme.typography.titleMedium
@@ -113,7 +108,6 @@ fun RegisterScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Pencari Radio Button
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
@@ -126,7 +120,6 @@ fun RegisterScreen(
                 Text("Pencari Kos")
             }
 
-            // Pemilik Radio Button
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
@@ -142,7 +135,6 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Register Button
         Button(
             onClick = {
                 viewModel.register(
@@ -172,12 +164,10 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Back to Login
         TextButton(onClick = onBackToLogin) {
             Text("Sudah punya akun? Login di sini")
         }
 
-        // Error Message
         viewModel.errorMessage.value?.let { error ->
             Spacer(modifier = Modifier.height(16.dp))
             Card(
@@ -194,7 +184,6 @@ fun RegisterScreen(
             }
         }
 
-        // Success Message
         viewModel.successMessage.value?.let { success ->
             Spacer(modifier = Modifier.height(16.dp))
             Card(

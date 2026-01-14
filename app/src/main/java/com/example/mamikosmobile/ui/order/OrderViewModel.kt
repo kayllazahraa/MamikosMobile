@@ -63,40 +63,19 @@ class OrderViewModel : ViewModel() {
                 val response = apiService.getMyBookings()
 
                 if (response.isSuccessful && response.body() != null) {
-                    myOrders.value = response.body()!!
+                    val newOrders = response.body()!!
+                    val latestUpdate = newOrders.firstOrNull { it.status == "APPROVED" || it.status == "REJECTED" }
+                    if (latestUpdate != null) {
+                        successMessage.value = "Pembaruan: Pesanan Anda di ${latestUpdate.kosan.nama} telah ${latestUpdate.status}!"
+                    }
+
+                    myOrders.value = newOrders
                 } else {
                     errorMessage.value = "Gagal memuat pesanan"
                 }
             } catch (e: Exception) {
                 Log.e("ORDER", "Error load bookings: ${e.message}", e)
                 errorMessage.value = "Koneksi gagal"
-            } finally {
-                isLoading.value = false
-            }
-        }
-    }
-
-    fun cancelOrder(context: Context, orderId: Long) {
-        isLoading.value = true
-        errorMessage.value = null
-
-        viewModelScope.launch {
-            try {
-                val apiService = RetrofitClient.getClient(context)
-                val response = apiService.updateOrderStatus(
-                    orderId,
-                    StatusUpdate(status = "CANCELLED")
-                )
-
-                if (response.isSuccessful) {
-                    successMessage.value = "Pesanan berhasil dibatalkan"
-                    loadMyBookings(context) // refresh list
-                } else {
-                    errorMessage.value = "Gagal membatalkan pesanan"
-                }
-            } catch (e: Exception) {
-                Log.e("ORDER", "Error cancel: ${e.message}", e)
-                errorMessage.value = "Terjadi kesalahan"
             } finally {
                 isLoading.value = false
             }
@@ -110,7 +89,7 @@ class OrderViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val apiService = RetrofitClient.getClient(context)
-                val response = apiService.getMyRentals() // Memanggil endpoint rentals
+                val response = apiService.getMyRentals()
 
                 if (response.isSuccessful && response.body() != null) {
                     incomingRentals.value = response.body()!!
@@ -132,7 +111,6 @@ class OrderViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val apiService = RetrofitClient.getClient(context)
-                // newStatus bisa berisi "APPROVED" atau "REJECTED"
                 val response = apiService.updateOrderStatus(
                     orderId,
                     StatusUpdate(status = newStatus)
@@ -140,7 +118,7 @@ class OrderViewModel : ViewModel() {
 
                 if (response.isSuccessful) {
                     successMessage.value = "Status pesanan berhasil diperbarui menjadi $newStatus"
-                    loadOwnerRentals(context) // Refresh daftar setelah update
+                    loadOwnerRentals(context)
                 } else {
                     errorMessage.value = "Gagal memperbarui status"
                 }

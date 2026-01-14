@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,7 +18,8 @@ import com.example.mamikosmobile.data.session.SessionManager
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-
+import androidx.compose.runtime.remember
+import com.example.mamikosmobile.ui.order.OrderViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,13 +30,12 @@ fun HomeScreen(
     onMyBookingsClick: () -> Unit,
     onMyKosanClick: () -> Unit,
     onProfileClick: () -> Unit,
-    onOwnerOrdersClick: () -> Unit
+    onOwnerOrdersClick: () -> Unit // Tambahkan parameter ini agar baris merah hilang
 ) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
     val role = sessionManager.getRole()
 
-    // Load data saat pertama kali dibuka
     LaunchedEffect(Unit) {
         viewModel.fetchAllKosan(context)
     }

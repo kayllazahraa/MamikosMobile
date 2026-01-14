@@ -39,7 +39,6 @@ class AuthViewModel : ViewModel() {
                 if (response.isSuccessful && response.body() != null) {
                     val loginResponse = response.body()!!
 
-                    // 🔥 NORMALISASI ROLE (INI KUNCI)
                     val normalizedRole = when (loginResponse.role.uppercase()) {
                         "PEMILIK", "OWNER", "ROLE_PEMILIK" -> "ROLE_PEMILIK"
                         else -> "ROLE_PENCARI"
@@ -72,9 +71,6 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // ===============================
-    // REGISTER
-    // ===============================
     fun register(
         context: Context,
         namaLengkap: String,
@@ -118,7 +114,6 @@ class AuthViewModel : ViewModel() {
                 if (response.isSuccessful && response.body() != null) {
                     val loginResponse = response.body()!!
 
-                    // 🔥 NORMALISASI ROLE JUGA SAAT REGISTER
                     val normalizedRole = when (loginResponse.role.uppercase()) {
                         "PEMILIK", "OWNER", "ROLE_PEMILIK" -> "ROLE_PEMILIK"
                         else -> "ROLE_PENCARI"
